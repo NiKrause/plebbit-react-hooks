@@ -87,7 +87,7 @@ const getChainProviderNoCache = (chainTicker, chainProviderUrl, chainId) => {
     if (!chainId && chainId !== 0) {
         throw Error(`getChainProvider invalid chainId '${chainId}'`);
     }
-    return new ethers.providers.JsonRpcProvider({ url: chainProviderUrl }, chainId);
+    return new ethers.JsonRpcProvider(chainProviderUrl, chainId);
 };
 const getChainProvider = utils.memoSync(getChainProviderNoCache, { maxSize: 1000 });
 const nftAbi = [
@@ -126,9 +126,9 @@ export const getEthWalletFromPlebbitPrivateKey = (privateKeyBase64, authorAddres
     if (privateKeyBytes.length !== 32) {
         throw Error('failed getting eth address from private key not 32 bytes');
     }
-    const publicKeyHex = ethers.utils.computePublicKey(privateKeyBytes, false);
-    const privateKeyHex = ethers.utils.hexlify(privateKeyBytes);
-    const ethAddress = ethers.utils.computeAddress(publicKeyHex);
+    const publicKeyHex = ethers.SigningKey.computePublicKey(privateKeyBytes, false);
+    const privateKeyHex = ethers.hexlify(privateKeyBytes);
+    const ethAddress = ethers.computeAddress(publicKeyHex);
     // generate signature
     const timestamp = Date.now();
     const signature = yield new ethers.Wallet(privateKeyHex).signMessage(getWalletMessageToSign(authorAddress, timestamp));
@@ -143,7 +143,7 @@ export const getEthPrivateKeyFromPlebbitPrivateKey = (privateKeyBase64, authorAd
     if (privateKeyBytes.length !== 32) {
         throw Error('failed getting eth address from private key not 32 bytes');
     }
-    const privateKeyHex = ethers.utils.hexlify(privateKeyBytes);
+    const privateKeyHex = ethers.hexlify(privateKeyBytes);
     return privateKeyHex;
 });
 import { getPublicKey as ed25519GetPublicKey, sign as ed25519Sign, verify as ed25519Verify } from '@noble/ed25519';
@@ -200,7 +200,7 @@ export const validateEthWallet = (wallet, authorAddress) => __awaiter(void 0, vo
     assert((_a = wallet === null || wallet === void 0 ? void 0 : wallet.signature) === null || _a === void 0 ? void 0 : _a.signature, `validateEthWallet invalid wallet.signature.signature '${(_b = wallet === null || wallet === void 0 ? void 0 : wallet.signature) === null || _b === void 0 ? void 0 : _b.signature}'`);
     assert(wallet.signature.type === 'eip191', `validateEthWallet invalid wallet.signature.type '${(_c = wallet === null || wallet === void 0 ? void 0 : wallet.signature) === null || _c === void 0 ? void 0 : _c.type}'`);
     assert(authorAddress && typeof authorAddress === 'string', `validateEthWallet invalid authorAddress '${authorAddress}'`);
-    const signatureAddress = ethers.utils.verifyMessage(getWalletMessageToSign(authorAddress, wallet.timestamp), wallet.signature.signature);
+    const signatureAddress = ethers.verifyMessage(getWalletMessageToSign(authorAddress, wallet.timestamp), wallet.signature.signature);
     if (wallet.address !== signatureAddress) {
         throw Error('wallet address does not equal signature address');
     }

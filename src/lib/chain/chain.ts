@@ -90,7 +90,7 @@ const getChainProviderNoCache = (chainTicker: string, chainProviderUrl?: string,
   if (!chainId && chainId !== 0) {
     throw Error(`getChainProvider invalid chainId '${chainId}'`)
   }
-  return new ethers.providers.JsonRpcProvider({url: chainProviderUrl}, chainId)
+  return new ethers.JsonRpcProvider(chainProviderUrl, chainId)
 }
 const getChainProvider = utils.memoSync(getChainProviderNoCache, {maxSize: 1000})
 
@@ -133,9 +133,9 @@ export const getEthWalletFromPlebbitPrivateKey = async (privateKeyBase64: string
   if (privateKeyBytes.length !== 32) {
     throw Error('failed getting eth address from private key not 32 bytes')
   }
-  const publicKeyHex = ethers.utils.computePublicKey(privateKeyBytes, false)
-  const privateKeyHex = ethers.utils.hexlify(privateKeyBytes)
-  const ethAddress = ethers.utils.computeAddress(publicKeyHex)
+  const publicKeyHex = ethers.SigningKey.computePublicKey(privateKeyBytes, false)
+  const privateKeyHex = ethers.hexlify(privateKeyBytes)
+  const ethAddress = ethers.computeAddress(publicKeyHex)
 
   // generate signature
   const timestamp = Date.now()
@@ -154,7 +154,7 @@ export const getEthPrivateKeyFromPlebbitPrivateKey = async (privateKeyBase64: st
   if (privateKeyBytes.length !== 32) {
     throw Error('failed getting eth address from private key not 32 bytes')
   }
-  const privateKeyHex = ethers.utils.hexlify(privateKeyBytes)
+  const privateKeyHex = ethers.hexlify(privateKeyBytes)
   return privateKeyHex
 }
 
@@ -217,7 +217,7 @@ export const validateEthWallet = async (wallet: Wallet, authorAddress: string) =
   assert(wallet?.signature?.signature, `validateEthWallet invalid wallet.signature.signature '${wallet?.signature?.signature}'`)
   assert(wallet.signature.type === 'eip191', `validateEthWallet invalid wallet.signature.type '${wallet?.signature?.type}'`)
   assert(authorAddress && typeof authorAddress === 'string', `validateEthWallet invalid authorAddress '${authorAddress}'`)
-  const signatureAddress = ethers.utils.verifyMessage(getWalletMessageToSign(authorAddress, wallet.timestamp), wallet.signature.signature)
+  const signatureAddress = ethers.verifyMessage(getWalletMessageToSign(authorAddress, wallet.timestamp), wallet.signature.signature)
   if (wallet.address !== signatureAddress) {
     throw Error('wallet address does not equal signature address')
   }

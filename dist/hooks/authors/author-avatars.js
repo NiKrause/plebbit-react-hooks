@@ -181,7 +181,7 @@ export const verifyAuthorAvatarSignature = (nft, authorAddress, chainProviders) 
     messageThatShouldBeSigned.tokenId = nft.id; // must be a type string, not number
     // use plain JSON so the user can read what he's signing
     messageThatShouldBeSigned = JSON.stringify(messageThatShouldBeSigned);
-    const signatureAddress = ethers.utils.verifyMessage(messageThatShouldBeSigned, nft.signature.signature);
+    const signatureAddress = ethers.verifyMessage(messageThatShouldBeSigned, nft.signature.signature);
     let verified = true;
     if (currentNftOwnerAddress !== signatureAddress) {
         verified = false;

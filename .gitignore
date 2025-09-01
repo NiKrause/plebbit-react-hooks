@@ -21,3 +21,4 @@ packages/example/.next/
 .env.local
 yarn-error.log
 .env
+*.tgz
